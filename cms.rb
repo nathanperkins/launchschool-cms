@@ -23,5 +23,5 @@ get '/:file_name' do
 end
 
 def file_path(file_name)
-  ROOT + '/data/' + params[:file_name]
+  ROOT + '/data/' + file_name
 end
