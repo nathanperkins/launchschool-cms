@@ -1,4 +1,4 @@
-about.txt
+``about.txt``
 
 1993 - Yukihiro Matsumoto dreams up Ruby.
 1995 - Ruby 0.95 released.
