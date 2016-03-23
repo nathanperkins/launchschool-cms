@@ -5,6 +5,7 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'erubis'
 gem 'rack'
+gem 'redcarpet'
 
 group :production do
   #

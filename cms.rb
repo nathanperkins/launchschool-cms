@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'tilt/erubis'
+require 'redcarpet'
 
 if development?
   require 'pry'
@@ -20,8 +21,12 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    headers['Content-Type'] = 'text/plain'
-    File.read file_path(file_name)
+    if file_name =~ '.md'
+      render_markdown file_name
+    else
+      headers['Content-Type'] = 'text/plain'
+      File.read(file_path(file_name))
+    end
   else
     session[:message] = "#{file_name} does not exist."
 
@@ -37,4 +42,9 @@ def data_files
   @files = Dir.entries(ROOT + '/data')
   @files.select! { |file| !File.directory? file }
   @files.sort!
+end
+
+def render_markdown(file_name)
+  markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  markdown.render File.read(file_path(file_name))
 end

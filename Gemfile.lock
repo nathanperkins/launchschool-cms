@@ -21,6 +21,7 @@ GEM
     rack-test (0.6.3)
       rack (>= 1.0)
     rainbow (2.1.0)
+    redcarpet (3.3.4)
     rubocop (0.38.0)
       parser (>= 2.3.0.6, < 3.0)
       powerpack (~> 0.1)
@@ -51,6 +52,7 @@ DEPENDENCIES
   minitest
   pry
   rack
+  redcarpet
   rubocop
   sinatra
   sinatra-contrib
