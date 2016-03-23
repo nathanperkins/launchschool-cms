@@ -29,4 +29,11 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, 'about.txt'
     assert_includes last_response.body, '1996 - Ruby 1.0 released.'
   end
+
+  def test_bad_file
+    get '/non_existent.txt'
+    assert_equal 404, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'non_existent.txt does not exist.'
+  end
 end
