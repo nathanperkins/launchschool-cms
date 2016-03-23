@@ -21,7 +21,7 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    if file_name =~ '.md'
+    if file_name =~ /.md/
       render_markdown file_name
     else
       headers['Content-Type'] = 'text/plain'
