@@ -5,6 +5,10 @@
 </header>
 
 <body>
+  <% if session[:error] %>
+    <p><%= session[:error] %></p>
+    <% session[:error] = nil %>
+  <% end %>
   <%= yield %>
 </body>
 </html>
