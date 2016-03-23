@@ -2,6 +2,7 @@ ENV['RACK_ENV'] = 'test'
 
 require 'rack/test'
 require 'minitest/autorun'
+require 'pry'
 
 require_relative '../cms'
 
@@ -14,6 +15,7 @@ class AppTest < Minitest::Test
   end
 
   def test_index
+    # skip
     get '/'
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -23,6 +25,7 @@ class AppTest < Minitest::Test
   end
 
   def test_file
+    # skip
     get '/about.txt'
     assert_equal 200, last_response.status
     assert_equal 'text/plain', last_response['Content-Type']
@@ -31,9 +34,13 @@ class AppTest < Minitest::Test
   end
 
   def test_bad_file
-    get '/non_existent.txt'
-    assert_equal 404, last_response.status
-    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
-    assert_includes last_response.body, 'non_existent.txt does not exist.'
+    # skip
+    get '/bad_file.ext'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'bad_file.ext does not exist.'
   end
 end

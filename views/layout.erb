@@ -5,9 +5,8 @@
 </header>
 
 <body>
-  <% if session[:error] %>
-    <p><%= session[:error] %></p>
-    <% session[:error] = nil %>
+  <% if session[:message] %>
+    <p><%= session.delete(:message) %></p>
   <% end %>
   <%= yield %>
 </body>

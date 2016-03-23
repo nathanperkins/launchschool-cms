@@ -6,10 +6,13 @@ if development?
   require 'sinatra/reloader'
 end
 
+set :sessions, true
+
 ROOT = File.expand_path('..', __FILE__)
 
 get '/' do
   @files = data_files
+
   erb :index
 end
 
@@ -17,15 +20,12 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    file = File.open file_path(file_name)
     headers['Content-Type'] = 'text/plain'
-    return file.read
+    File.read file_path(file_name)
   else
-    status 404
-    session[:error] = "#{file_name} does not exist."
-    @files = data_files
+    session[:message] = "#{file_name} does not exist."
 
-    erb :index
+    redirect '/'
   end
 end
 
