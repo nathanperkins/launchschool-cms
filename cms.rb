@@ -1,9 +1,6 @@
 require 'sinatra'
 require 'sinatra/reloader'
-
-if development?
-  require 'pry'
-end
+require 'pry' if development?
 
 get '/' do
   'Getting started.'
