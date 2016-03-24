@@ -1,13 +1,19 @@
 <!doctype HTML>
 <html>
-<header>
+<head>
   <title>Sinatra CMS</title>
-</header>
+  <link rel="stylesheet" type="text/css" href="/stylesheets/application.css">
+</head>
 
 <body>
   <% if session[:message] %>
-    <p><%= session.delete(:message) %></p>
+    <section id='message'>
+      <%= session.delete(:message) %>
+    </section>
   <% end %>
-  <%= yield %>
+
+  <section id='content'>
+    <%= yield %>
+  </section>
 </body>
 </html>

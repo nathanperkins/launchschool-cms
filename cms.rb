@@ -18,7 +18,7 @@ def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
   else
-    FILE.expand_path('../data', __FILE__)
+    File.expand_path('../data', __FILE__)
   end
 end
 
@@ -58,7 +58,8 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    load_file_content(file_path(file_name))
+    @content = load_file_content(file_path(file_name))
+    erb :markdown
   else
     session[:message] = "#{file_name} does not exist."
 
