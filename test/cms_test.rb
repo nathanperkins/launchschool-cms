@@ -14,6 +14,7 @@ class AppTest < Minitest::Test
     Sinatra::Application
   end
 
+  # rubocop:disable Metrics/AbcSize
   def test_index
     # skip
     get '/'
@@ -23,14 +24,15 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, 'changes.txt'
     assert_includes last_response.body, 'history.txt'
   end
+  # rubocop:enable Metrics/AbcSize
 
   def test_file
     # skip
-    get '/changes.txt'
+    get '/history.txt'
     assert_equal 200, last_response.status
     assert_equal 'text/plain', last_response['Content-Type']
-    assert_includes last_response.body, 'changes.txt'
-    assert_includes last_response.body, '1996 - Ruby 1.0 released.'
+    assert_includes last_response.body, 'history.txt'
+    assert_includes last_response.body, '1995 - Ruby 0.95 released.'
   end
 
   def test_bad_file
@@ -50,4 +52,30 @@ class AppTest < Minitest::Test
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     assert_includes last_response.body, '<p><code>about.txt</code></p>'
   end
+
+  def test_editing_document
+    get '/changes.txt/edit'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, '<textarea'
+    assert_includes last_response.body, '<button type=\'submit\''
+  end
+
+  # rubocop:disable Metrics/AbcSize
+  def test_updating_document
+    text = SecureRandom.uuid
+    post '/test.txt', content: text
+
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+
+    assert_includes last_response.body, 'test.txt has been updated'
+
+    get '/test.txt'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, text
+  end
+  # rubocop:enable Metrics/AbcSize
 end
