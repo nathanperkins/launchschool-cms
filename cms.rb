@@ -70,7 +70,8 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    return load_file_content(file_path(file_name))
+    content = load_file_content(file_path(file_name))
+    erb content
   else
     session[:message] = "#{file_name} does not exist."
 
