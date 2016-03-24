@@ -54,6 +54,10 @@ get '/' do
   erb :index
 end
 
+get '/new' do
+  erb :new
+end
+
 get '/:file_name' do
   file_name = params[:file_name]
 
@@ -77,7 +81,16 @@ end
 post '/:file_name' do
   file_name = params[:file_name]
   File.write(file_path(file_name), params[:content])
-
   session[:message] = "#{file_name} has been updated."
+
+  redirect '/'
+end
+
+post '/' do
+  file_name = params[:file_name]
+  file = File.new(file_path(file_name), 'w')
+  file.close
+  session[:message] = "#{file_name} was created."
+
   redirect '/'
 end
