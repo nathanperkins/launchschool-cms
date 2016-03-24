@@ -67,9 +67,7 @@ end
 
 post '/:file_name' do
   file_name = params[:file_name]
-  file = File.open(file_path(file_name), 'w')
-  file << params[:content]
-  file.close
+  File.write(file_path(file_name), params[:content])
 
   session[:message] = "#{file_name} has been updated."
   redirect '/'
