@@ -14,6 +14,7 @@ class AppTest < Minitest::Test
     Sinatra::Application
   end
 
+  # rubocop:disable Metrics/AbcSize
   def test_index
     # skip
     get '/'
@@ -23,6 +24,7 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, 'changes.txt'
     assert_includes last_response.body, 'history.txt'
   end
+  # rubocop:enable Metrics/AbcSize
 
   def test_file
     # skip
@@ -59,6 +61,7 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, '<button type=\'submit\''
   end
 
+  # rubocop:disable Metrics/AbcSize
   def test_updating_document
     text = SecureRandom.uuid
     post '/test.txt', content: text
@@ -74,4 +77,5 @@ class AppTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, text
   end
+  # rubocop:enable Metrics/AbcSize
 end
