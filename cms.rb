@@ -37,6 +37,14 @@ def load_file_content(path)
   end
 end
 
+def error_for_new_file(file_name)
+  unless(1..100).cover? file_name
+    'File name must be between 1 and 100 characters'
+  end
+
+  nil
+end
+
 def data_files
   @files = Dir.entries(data_path)
   @files.select! { |file| !File.directory? file }
@@ -45,7 +53,7 @@ end
 
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-  markdown.render(text)
+  markdown.render(text).prepend('<body>').concat('</body>')
 end
 
 get '/' do
@@ -62,8 +70,7 @@ get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    @content = load_file_content(file_path(file_name))
-    erb :markdown
+    return load_file_content(file_path(file_name))
   else
     session[:message] = "#{file_name} does not exist."
 
@@ -88,9 +95,16 @@ end
 
 post '/' do
   file_name = params[:file_name]
-  file = File.new(file_path(file_name), 'w')
-  file.close
-  session[:message] = "#{file_name} was created."
 
-  redirect '/'
+  error = error_for_new_file(file_name)
+  if error
+    session[:message] = error
+    redirect '/new'
+  else
+    file = File.new(file_path(file_name), 'w')
+    file.close
+    session[:message] = "#{file_name} was created."
+
+    redirect '/'
+  end
 end
