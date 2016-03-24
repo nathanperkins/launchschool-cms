@@ -3,6 +3,7 @@ ENV['RACK_ENV'] = 'test'
 require 'rack/test'
 require 'minitest/autorun'
 require 'pry'
+require 'fileutils'
 
 require_relative '../cms'
 
@@ -14,9 +15,27 @@ class AppTest < Minitest::Test
     Sinatra::Application
   end
 
+  def setup
+    FileUtils.mkdir_p(data_path)
+  end
+
+  def teardown
+    FileUtils.rm_rf(data_path)
+  end
+
+  def create_document(name, content = '')
+    File.open(file_path(name), 'w') do |file|
+      file.write(content)
+    end
+  end
+
   # rubocop:disable Metrics/AbcSize
   def test_index
     # skip
+    create_document('about.md')
+    create_document('changes.txt')
+    create_document('history.txt')
+
     get '/'
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -28,6 +47,8 @@ class AppTest < Minitest::Test
 
   def test_file
     # skip
+    create_document('history.txt', 'history.txt\n1995 - Ruby 0.95 released.')
+
     get '/history.txt'
     assert_equal 200, last_response.status
     assert_equal 'text/plain', last_response['Content-Type']
@@ -47,6 +68,8 @@ class AppTest < Minitest::Test
   end
 
   def test_markdown
+    create_document('about.md', '``about.txt``')
+
     get '/about.md'
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -54,6 +77,7 @@ class AppTest < Minitest::Test
   end
 
   def test_editing_document
+    create_document('changes.txt')
     get '/changes.txt/edit'
 
     assert_equal 200, last_response.status
