@@ -14,8 +14,16 @@ end
 
 ROOT = File.expand_path('..', __FILE__)
 
+def data_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/data', __FILE__)
+  else
+    FILE.expand_path('../data', __FILE__)
+  end
+end
+
 def file_path(file_name)
-  ROOT + '/data/' + file_name
+  File.join(data_path, file_name)
 end
 
 def load_file_content(path)
@@ -30,7 +38,7 @@ def load_file_content(path)
 end
 
 def data_files
-  @files = Dir.entries(ROOT + '/data')
+  @files = Dir.entries(data_path)
   @files.select! { |file| !File.directory? file }
   @files.sort!
 end
