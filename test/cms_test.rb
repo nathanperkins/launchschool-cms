@@ -102,4 +102,34 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, text
   end
   # rubocop:enable Metrics/AbcSize
+
+  def test_new_document_form
+    get '/new'
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'Add a new document:'
+    assert_includes last_response.body, '<input'
+  end
+
+  # rubocop:disable Metrics/AbcSize
+  def test_create_new_document
+    post '/create', file_name: 'test.txt'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'test.txt'
+  end
+  # rubocop:enable Metrics/AbcSize
+
+  # rubocop:disable Metrics/AbcSize
+  def test_create_new_document_without_filename
+    post '/create', file_name: ''
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_includes last_response.body, 'must be between 1 and 100 characters.'
+  end
+  # rubocop:enable Metrics/AbcSize
 end

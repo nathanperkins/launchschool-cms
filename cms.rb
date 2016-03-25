@@ -30,11 +30,19 @@ def load_file_content(path)
   content = File.read(path)
   case File.extname(path)
   when '.md'
-    render_markdown content
+    erb(render_markdown(content))
   when '.txt'
     headers['Content-Type'] = 'text/plain'
     content
   end
+end
+
+def error_for_new_file(file_name)
+  unless (1..100).cover? file_name.size
+    return 'File name must be between 1 and 100 characters.'
+  end
+
+  nil
 end
 
 def data_files
@@ -45,7 +53,7 @@ end
 
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-  markdown.render(text)
+  markdown.render(text).prepend('<body>').concat('</body>')
 end
 
 get '/' do
@@ -54,12 +62,31 @@ get '/' do
   erb :index
 end
 
+get '/new' do
+  erb :new
+end
+
+post '/create' do
+  file_name = params[:file_name]
+
+  error = error_for_new_file(file_name)
+  if error
+    session[:message] = error
+    redirect '/new'
+  else
+    File.write(file_path(file_name), '')
+    session[:message] = "#{file_name} was created."
+
+    redirect '/'
+  end
+end
+
 get '/:file_name' do
   file_name = params[:file_name]
 
   if File.exist? file_path(file_name)
-    @content = load_file_content(file_path(file_name))
-    erb :markdown
+    content = load_file_content(file_path(file_name))
+    content
   else
     session[:message] = "#{file_name} does not exist."
 
@@ -77,7 +104,7 @@ end
 post '/:file_name' do
   file_name = params[:file_name]
   File.write(file_path(file_name), params[:content])
-
   session[:message] = "#{file_name} has been updated."
+
   redirect '/'
 end

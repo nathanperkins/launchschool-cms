@@ -3,7 +3,7 @@ body {
   font-family: sans-serif;
 }
 
-  #message {
+.message {
   padding: 10px;
   background-color: #FFFF99;
 }
