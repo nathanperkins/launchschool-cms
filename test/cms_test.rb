@@ -133,7 +133,7 @@ class AppTest < Minitest::Test
     create_document('test.txt')
     get '/'
 
-    assert_includes last_response.body, "<a href='/test.txt/delete"
+    assert_includes last_response.body, "<form action='/test.txt/delete'"
   end
 
   def test_delete_file
@@ -142,7 +142,7 @@ class AppTest < Minitest::Test
     get '/'
     assert_includes last_response.body, 'test.txt'
 
-    get '/test.txt/delete'
+    post '/test.txt/delete'
 
     get last_response['Location']
     assert_equal 200, last_response.status

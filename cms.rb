@@ -109,7 +109,7 @@ post '/:file_name' do
   redirect '/'
 end
 
-get '/:file_name/delete' do
+post '/:file_name/delete' do
   file_name = params[:file_name]
   if File.exist? file_path(file_name)
     session[:message] = "#{file_name} was deleted."
@@ -119,4 +119,12 @@ get '/:file_name/delete' do
   end
 
   redirect '/'
+end
+
+get '/users/signin' do
+  erb :signin
+end
+
+post '/users/signin' do
+  binding.pry
 end
