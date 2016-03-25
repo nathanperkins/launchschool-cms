@@ -137,6 +137,7 @@ post '/users/signin' do
 
     redirect '/'
   else
+    status 422
     session[:message] = 'Invalid credentials.'
     erb :signin
   end
@@ -145,5 +146,6 @@ end
 post '/users/signout' do
   session[:user] = nil
   session[:message] = 'You have been signed out.'
+
   redirect '/'
 end

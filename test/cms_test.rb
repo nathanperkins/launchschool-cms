@@ -133,7 +133,7 @@ class AppTest < Minitest::Test
     create_document('test.txt')
     get '/'
 
-    assert_includes last_response.body, "<form action='/test.txt/delete'"
+    assert_includes last_response.body, "action='/test.txt/delete'"
   end
 
   def test_delete_file
@@ -147,5 +147,43 @@ class AppTest < Minitest::Test
     get last_response['Location']
     assert_equal 200, last_response.status
     refute_includes last_response.body, "<a href='/test.txt"
+  end
+
+  def test_login_form
+    get '/users/signin'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Username:'
+  end
+
+  def test_login_success
+    post '/users/signin', username: 'admin', password: 'secret'
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Welcome, admin!'
+    assert_includes last_response.body, 'Signed in as admin'
+    assert_includes last_response.body, "<button type='submit'>Sign Out"
+  end
+
+  def test_login_fail
+    post '/users/signin', username: 'fake_user'
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, 'Invalid'
+    assert_includes last_response.body, 'fake_user'
+  end
+
+  def test_logout_user
+    post '/users/signin', username: 'admin', password: 'secret'
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Welcome"
+
+    post '/users/signout'
+
+    get last_response['Location']
+    assert_includes last_response.body, 'You have been signed out.'
+    assert_includes last_response.body, 'Sign In'
   end
 end
