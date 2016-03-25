@@ -112,7 +112,6 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, '<input'
   end
 
-  # rubocop:disable Metrics/AbcSize
   def test_create_new_document
     post '/create', file_name: 'test.txt'
     assert_equal 302, last_response.status
@@ -121,9 +120,7 @@ class AppTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'test.txt'
   end
-  # rubocop:enable Metrics/AbcSize
 
-  # rubocop:disable Metrics/AbcSize
   def test_create_new_document_without_filename
     post '/create', file_name: ''
     assert_equal 302, last_response.status
@@ -131,5 +128,24 @@ class AppTest < Minitest::Test
     get last_response['Location']
     assert_includes last_response.body, 'must be between 1 and 100 characters.'
   end
-  # rubocop:enable Metrics/AbcSize
+
+  def test_delete_on_index_form
+    create_document('test.txt')
+    get '/'
+
+    assert_includes last_response.body, "<a href='/test.txt/delete"
+  end
+
+  def test_delete_file
+    create_document('test.txt')
+
+    get '/'
+    assert_includes last_response.body, 'test.txt'
+
+    get '/test.txt/delete'
+
+    get last_response['Location']
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, "<a href='/test.txt"
+  end
 end
