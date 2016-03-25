@@ -30,7 +30,7 @@ def load_file_content(path)
   content = File.read(path)
   case File.extname(path)
   when '.md'
-    render_markdown content
+    erb(render_markdown(content))
   when '.txt'
     headers['Content-Type'] = 'text/plain'
     content
@@ -38,8 +38,8 @@ def load_file_content(path)
 end
 
 def error_for_new_file(file_name)
-  unless(1..100).cover? file_name
-    'File name must be between 1 and 100 characters'
+  unless (1..100).cover? file_name.size
+    return 'File name must be between 1 and 100 characters.'
   end
 
   nil
@@ -71,7 +71,7 @@ get '/:file_name' do
 
   if File.exist? file_path(file_name)
     content = load_file_content(file_path(file_name))
-    erb content
+    content
   else
     session[:message] = "#{file_name} does not exist."
 
