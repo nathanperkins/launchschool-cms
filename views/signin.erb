@@ -1,6 +1,6 @@
 <form method='post' action='/users/signin'>
   <label for='username'>Username:</label>
-  <input name='username' type='text' /><br>
+  <input name='username' type='text' value='<%=params[:username] %>' /><br>
   <label for='password'>Password:</label>
   <input name='password' type='password' /><br>
   <button type='submit'>Sign In</button>

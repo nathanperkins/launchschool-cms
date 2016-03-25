@@ -13,3 +13,13 @@
 </ul>
 
 <p><a href='/new'>New Document</a></p>
+<% if session[:user] %>
+  <em>Signed in as <%= session[:user][:name] %>.</em>
+  <form class='inline' method='post' action='/users/signout'>
+    <button type='submit'>Sign Out</button>
+  </form>
+<% else %>
+  <form class='inline' method='get' action='/users/signin'>
+    <button type='submit'>Sign In</button>
+  </form>
+<% end %>
