@@ -66,6 +66,21 @@ get '/new' do
   erb :new
 end
 
+post '/create' do
+  file_name = params[:file_name]
+
+  error = error_for_new_file(file_name)
+  if error
+    session[:message] = error
+    redirect '/new'
+  else
+    File.write(file_path(file_name), '')
+    session[:message] = "#{file_name} was created."
+
+    redirect '/'
+  end
+end
+
 get '/:file_name' do
   file_name = params[:file_name]
 
@@ -92,20 +107,4 @@ post '/:file_name' do
   session[:message] = "#{file_name} has been updated."
 
   redirect '/'
-end
-
-post '/' do
-  file_name = params[:file_name]
-
-  error = error_for_new_file(file_name)
-  if error
-    session[:message] = error
-    redirect '/new'
-  else
-    file = File.new(file_path(file_name), 'w')
-    file.close
-    session[:message] = "#{file_name} was created."
-
-    redirect '/'
-  end
 end

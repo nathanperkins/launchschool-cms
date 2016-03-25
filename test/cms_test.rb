@@ -103,7 +103,7 @@ class AppTest < Minitest::Test
   end
   # rubocop:enable Metrics/AbcSize
 
-  def test_new_get
+  def test_new_document_form
     get '/new'
 
     assert_equal 200, last_response.status
@@ -113,15 +113,19 @@ class AppTest < Minitest::Test
   end
 
   # rubocop:disable Metrics/AbcSize
-  def test_new_post
-    post '/', file_name: 'test.txt'
+  def test_create_new_document
+    post '/create', file_name: 'test.txt'
     assert_equal 302, last_response.status
 
     get last_response['Location']
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'test.txt'
+  end
+  # rubocop:enable Metrics/AbcSize
 
-    post '/', file_name: ''
+  # rubocop:disable Metrics/AbcSize
+  def test_create_new_document_without_filename
+    post '/create', file_name: ''
     assert_equal 302, last_response.status
 
     get last_response['Location']
