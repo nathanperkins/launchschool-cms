@@ -2,8 +2,6 @@ require 'sinatra'
 require 'tilt/erubis'
 require 'redcarpet'
 
-@@users = {'admin' => {password: 'secret'}}
-
 if development?
   require 'pry'
   require 'sinatra/reloader'
@@ -58,6 +56,17 @@ def render_markdown(text)
   markdown.render(text).prepend('<body>').concat('</body>')
 end
 
+def logged_in?
+  !!session[:user]
+end
+
+def must_be_logged_in
+  unless logged_in?
+    session[:message] = 'You must be signed in to do that.'
+    redirect '/'
+  end
+end
+
 get '/' do
   @files = data_files
 
@@ -65,10 +74,14 @@ get '/' do
 end
 
 get '/new' do
+  must_be_logged_in
+
   erb :new
 end
 
 post '/create' do
+  must_be_logged_in
+
   file_name = params[:file_name]
 
   error = error_for_new_file(file_name)
@@ -99,6 +112,8 @@ get '/:file_name' do
 end
 
 get '/:file_name/edit' do
+  must_be_logged_in
+
   @file_name = params[:file_name]
   @file_content = File.read(file_path(@file_name))
 
@@ -106,6 +121,8 @@ get '/:file_name/edit' do
 end
 
 post '/:file_name' do
+  must_be_logged_in
+
   file_name = params[:file_name]
   File.write(file_path(file_name), params[:content])
   session[:message] = "#{file_name} has been updated."
@@ -114,6 +131,8 @@ post '/:file_name' do
 end
 
 post '/:file_name/delete' do
+  must_be_logged_in
+
   file_name = params[:file_name]
   if File.exist? file_path(file_name)
     session[:message] = "#{file_name} was deleted."
@@ -146,6 +165,8 @@ post '/users/signin' do
 end
 
 post '/users/signout' do
+  must_be_logged_in
+  
   session[:user] = nil
   session[:message] = 'You have been signed out.'
 

@@ -33,6 +33,10 @@ class AppTest < Minitest::Test
     end
   end
 
+  def admin_session
+    { 'rack.session' => { user: 'admin' } }
+  end
+
   # rubocop:disable Metrics/AbcSize
   def test_index
     # skip
@@ -78,7 +82,7 @@ class AppTest < Minitest::Test
   def test_editing_document
     create_document('changes.txt')
 
-    get '/changes.txt/edit'
+    get '/changes.txt/edit', {}, admin_session
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, '<textarea'
@@ -88,7 +92,7 @@ class AppTest < Minitest::Test
   # rubocop:disable Metrics/AbcSize
   def test_updating_document
     text = SecureRandom.uuid
-    post '/test.txt', content: text
+    post '/test.txt', { content: text }, admin_session
 
     assert_equal 302, last_response.status
     assert_equal 'test.txt has been updated.', session[:message]
@@ -100,7 +104,7 @@ class AppTest < Minitest::Test
   # rubocop:enable Metrics/AbcSize
 
   def test_view_new_document_form
-    get '/new'
+    get '/new', {}, admin_session
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -109,7 +113,8 @@ class AppTest < Minitest::Test
   end
 
   def test_create_new_document
-    post '/create', file_name: 'test.txt'
+    post '/create', { file_name: 'test.txt' }, admin_session
+
     assert_equal 302, last_response.status
     assert_equal 'test.txt has been created.', session[:message]
 
@@ -118,7 +123,7 @@ class AppTest < Minitest::Test
   end
 
   def test_create_new_document_without_filename
-    post '/create', file_name: ''
+    post '/create', { file_name: '' }, admin_session
 
     assert_equal 'File name must be between 1 and 100 characters.', session[:message]
   end
@@ -133,7 +138,7 @@ class AppTest < Minitest::Test
   def test_deleting_document
     create_document('test.txt')
 
-    get '/'
+    get '/', {}, admin_session
     assert_includes last_response.body, 'test.txt'
 
     post '/test.txt/delete'
@@ -168,11 +173,10 @@ class AppTest < Minitest::Test
     assert_nil session[:user]
     assert_includes last_response.body, 'Invalid'
     assert_includes last_response.body, 'fake_user'
-
   end
 
   def test_logout_user
-    get '/', {}, {'rack.session' => {user: 'admin' } }
+    get '/', {}, admin_session
     assert_includes last_response.body, 'Signed in as admin.'
 
     post '/users/signout'
@@ -181,5 +185,33 @@ class AppTest < Minitest::Test
     assert_nil session[:user]
     assert_includes last_response.body, 'You have been signed out.'
     assert_includes last_response.body, 'Sign In'
+  end
+
+  def test_requires_user_view_edit
+    create_document('test.txt')
+
+    get '/test.txt/edit'
+    get last_response['Location']
+    assert_includes last_response.body, 'You must be signed in to do that'
+  end
+
+  def test_requires_user_submit_edit
+    create_document('test.txt')
+
+    post '/test.txt'
+    get last_response['Location']
+    assert_includes last_response.body, 'You must be signed in to do that'
+  end
+
+  def test_requires_user_view_new
+    get '/new'
+    get last_response['Location']
+    assert_includes last_response.body, 'You must be signed in to do that'
+  end
+
+  def test_requires_user_submit_new
+    post '/create', file_name: 'test.txt'
+    get last_response['Location']
+    assert_includes last_response.body, 'You must be signed in to do that'
   end
 end
