@@ -14,12 +14,13 @@
 
 <p><a href='/new'>New Document</a></p>
 <% if session[:user] %>
-  <em>Signed in as <%= session[:user][:name] %>.</em>
-  <form class='inline' method='post' action='/users/signout'>
-    <button type='submit'>Sign Out</button>
+  <form method='post' action='/users/signout'>
+    <p class='user-status'>
+      Signed in as <%= session[:user] %>.
+      <button type='submit'>Sign Out</button>
+    </p>
   </form>
+  </p>
 <% else %>
-  <form class='inline' method='get' action='/users/signin'>
-    <button type='submit'>Sign In</button>
-  </form>
+  <p class='user-status'><a href='/users/signin'>Sign In</a></p>
 <% end %>

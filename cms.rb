@@ -132,7 +132,7 @@ post '/users/signin' do
   password = params[:password]
 
   if @@users[username] && password == @@users[username][:password]
-    session[:user] = {name: username}
+    session[:user] = username
     session[:message] = "Welcome, #{username}!"
 
     redirect '/'
