@@ -155,7 +155,7 @@ class AppTest < Minitest::Test
   end
 
   def test_login_success
-    post '/users/signin', username: 'admin', password: 'secret'
+    post '/users/signin', username: 'admin', password: 'adminpassword'
     assert_equal 302, last_response.status
     assert_equal 'admin', session[:user]
 

@@ -1,0 +1,5 @@
+---
+admin:
+  password: 'secret'
+nathan:
+  password: 'nathanspassword'

@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'tilt/erubis'
 require 'redcarpet'
+require 'yaml'
 
 if development?
   require 'pry'
@@ -65,6 +66,16 @@ def must_be_logged_in
     session[:message] = 'You must be signed in to do that.'
     redirect '/'
   end
+end
+
+def authenticate(username, password)
+  if ENV['RACK_ENV'] == 'test'
+    users = YAML.load_file('test/users.yml')
+  else
+    users = YAML.load_file('users.yml')
+  end
+
+  (users.keys.include? username) && (users[username]['password'] == password)
 end
 
 get '/' do
@@ -152,7 +163,7 @@ post '/users/signin' do
   username = params[:username]
   password = params[:password]
 
-  if username == 'admin' && password == 'secret'
+  if authenticate(username, password)
     session[:user] = username
     session[:message] = "Welcome, #{username}!"
 
@@ -166,7 +177,7 @@ end
 
 post '/users/signout' do
   must_be_logged_in
-  
+
   session[:user] = nil
   session[:message] = 'You have been signed out.'
 
