@@ -23,6 +23,10 @@ class AppTest < Minitest::Test
     FileUtils.rm_rf(data_path)
   end
 
+  def session
+    last_request.env['rack.session']
+  end
+
   def create_document(name, content = '')
     File.open(file_path(name), 'w') do |file|
       file.write(content)
@@ -34,18 +38,16 @@ class AppTest < Minitest::Test
     # skip
     create_document('about.md')
     create_document('changes.txt')
-    create_document('history.txt')
 
     get '/'
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     assert_includes last_response.body, 'about.md'
     assert_includes last_response.body, 'changes.txt'
-    assert_includes last_response.body, 'history.txt'
   end
   # rubocop:enable Metrics/AbcSize
 
-  def test_file
+  def test_viewing_test_document
     # skip
     create_document('history.txt', 'history.txt\n1995 - Ruby 0.95 released.')
 
@@ -56,18 +58,7 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, '1995 - Ruby 0.95 released.'
   end
 
-  def test_bad_file
-    # skip
-    get '/bad_file.ext'
-    assert_equal 302, last_response.status
-
-    get last_response['Location']
-
-    assert_equal 200, last_response.status
-    assert_includes last_response.body, 'bad_file.ext does not exist.'
-  end
-
-  def test_markdown
+  def test_viewing_markdown_document
     create_document('about.md', '``about.txt``')
 
     get '/about.md'
@@ -76,8 +67,17 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, '<p><code>about.txt</code></p>'
   end
 
+  def test_document_not_found
+    # skip
+    get '/bad_file.ext'
+
+    assert_equal 302, last_response.status
+    assert_equal 'bad_file.ext does not exist.', session[:message]
+  end
+
   def test_editing_document
     create_document('changes.txt')
+
     get '/changes.txt/edit'
 
     assert_equal 200, last_response.status
@@ -91,19 +91,15 @@ class AppTest < Minitest::Test
     post '/test.txt', content: text
 
     assert_equal 302, last_response.status
-
-    get last_response['Location']
-
-    assert_includes last_response.body, 'test.txt has been updated'
+    assert_equal 'test.txt has been updated.', session[:message]
 
     get '/test.txt'
-
     assert_equal 200, last_response.status
     assert_includes last_response.body, text
   end
   # rubocop:enable Metrics/AbcSize
 
-  def test_new_document_form
+  def test_view_new_document_form
     get '/new'
 
     assert_equal 200, last_response.status
@@ -115,18 +111,16 @@ class AppTest < Minitest::Test
   def test_create_new_document
     post '/create', file_name: 'test.txt'
     assert_equal 302, last_response.status
+    assert_equal 'test.txt has been created.', session[:message]
 
-    get last_response['Location']
-    assert_equal 200, last_response.status
+    get '/'
     assert_includes last_response.body, 'test.txt'
   end
 
   def test_create_new_document_without_filename
     post '/create', file_name: ''
-    assert_equal 302, last_response.status
 
-    get last_response['Location']
-    assert_includes last_response.body, 'must be between 1 and 100 characters.'
+    assert_equal 'File name must be between 1 and 100 characters.', session[:message]
   end
 
   def test_delete_on_index_form
@@ -136,7 +130,7 @@ class AppTest < Minitest::Test
     assert_includes last_response.body, "action='/test.txt/delete'"
   end
 
-  def test_delete_file
+  def test_deleting_document
     create_document('test.txt')
 
     get '/'
@@ -158,6 +152,7 @@ class AppTest < Minitest::Test
   def test_login_success
     post '/users/signin', username: 'admin', password: 'secret'
     assert_equal 302, last_response.status
+    assert_equal 'admin', session[:user]
 
     get last_response['Location']
     assert_equal 200, last_response.status
@@ -170,19 +165,20 @@ class AppTest < Minitest::Test
     post '/users/signin', username: 'fake_user'
 
     assert_equal 422, last_response.status
+    assert_nil session[:user]
     assert_includes last_response.body, 'Invalid'
     assert_includes last_response.body, 'fake_user'
+
   end
 
   def test_logout_user
-    post '/users/signin', username: 'admin', password: 'secret'
-
-    get last_response["Location"]
-    assert_includes last_response.body, "Welcome"
+    get '/', {}, {'rack.session' => {user: 'admin' } }
+    assert_includes last_response.body, 'Signed in as admin.'
 
     post '/users/signout'
-
     get last_response['Location']
+
+    assert_nil session[:user]
     assert_includes last_response.body, 'You have been signed out.'
     assert_includes last_response.body, 'Sign In'
   end
