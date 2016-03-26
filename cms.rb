@@ -73,11 +73,13 @@ post '/create' do
 
   error = error_for_new_file(file_name)
   if error
+    status 422
     session[:message] = error
+
     redirect '/new'
   else
     File.write(file_path(file_name), '')
-    session[:message] = "#{file_name} was created."
+    session[:message] = "#{file_name} has been created."
 
     redirect '/'
   end
@@ -131,7 +133,7 @@ post '/users/signin' do
   username = params[:username]
   password = params[:password]
 
-  if @@users[username] && password == @@users[username][:password]
+  if username == 'admin' && password == 'secret'
     session[:user] = username
     session[:message] = "Welcome, #{username}!"
 
