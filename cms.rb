@@ -2,6 +2,8 @@ require 'sinatra'
 require 'tilt/erubis'
 require 'redcarpet'
 
+@@users = {'admin' => {password: 'secret'}}
+
 if development?
   require 'pry'
   require 'sinatra/reloader'
@@ -126,5 +128,24 @@ get '/users/signin' do
 end
 
 post '/users/signin' do
-  binding.pry
+  username = params[:username]
+  password = params[:password]
+
+  if @@users[username] && password == @@users[username][:password]
+    session[:user] = username
+    session[:message] = "Welcome, #{username}!"
+
+    redirect '/'
+  else
+    status 422
+    session[:message] = 'Invalid credentials.'
+    erb :signin
+  end
+end
+
+post '/users/signout' do
+  session[:user] = nil
+  session[:message] = 'You have been signed out.'
+
+  redirect '/'
 end
