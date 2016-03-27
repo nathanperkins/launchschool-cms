@@ -1,5 +1,5 @@
 ---
 admin:
-  password: 'secret'
+  password: '$2a$10$z.4jEYEApEppo58PubYFTu0vT9Da.Il/05Ti58280pHJrPEunHXXO'
 nathan:
-  password: 'nathanspassword'
+  password: '$2a$10$wlsuv/zY6L7.F5LfK7YHWOQVz2T1DnFOYpg.dApUxGVdeCEKTNr..'

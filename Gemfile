@@ -6,6 +6,7 @@ gem 'sinatra-contrib'
 gem 'erubis'
 gem 'rack'
 gem 'redcarpet'
+gem 'bcrypt'
 
 group :production do
   #

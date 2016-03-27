@@ -1,5 +1,5 @@
 ---
 admin:
-  password: 'adminpassword'
+  password: '$2a$10$yWjxlA5gYZoSGf5.yCBvHuONiOJBioWrKZYvcte5diG7ah.D5Hkwq'
 user:
-  password: 'userpassword'
+  password: '$2a$10$mE70XaNnNIwFqYjZJZSSVuln4lQoWqf4nZMxitYtOHvkzZFknRvKK'
