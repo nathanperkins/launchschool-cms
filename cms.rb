@@ -2,6 +2,7 @@ require 'sinatra'
 require 'tilt/erubis'
 require 'redcarpet'
 require 'yaml'
+require 'bcrypt'
 
 if development?
   require 'pry'
@@ -24,7 +25,7 @@ def data_path
 end
 
 def file_path(file_name)
-  File.join(data_path, file_name)
+  File.join(data_path, File.basename(file_name))
 end
 
 def load_file_content(path)
@@ -75,7 +76,7 @@ def authenticate(username, password)
     users = YAML.load_file('users.yml')
   end
 
-  (users.keys.include? username) && (users[username]['password'] == password)
+  (users.keys.include? username) && (BCrypt::Password.new(users[username]['password']) == password)
 end
 
 get '/' do
